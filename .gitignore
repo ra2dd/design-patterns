@@ -1,7 +1,11 @@
-### IntelliJ IDEA ###
+### IntelliJ IDEA, Java ###
 **/.idea
 *.iws
 *.iml
 *.ipr
 
 **/out/production
+
+
+### Python ###
+**/__pycache__
