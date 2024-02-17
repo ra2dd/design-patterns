@@ -79,30 +79,76 @@ class EnglishLanguageSetting(LanguageSetting):
         print(f'Fetch English text from the {db} database.')
 
 
-def main() -> None:
-    """Main function"""
+class SettingFactory(ABC):
+    """
+    Factory that represents a combination of currency 
+    and language settings.
+    The factory doesn't maintain any of the instances it creates.
+    Once instances are created you are in charge of them.
+    """
+
+    def get_currency_setting(self) -> CurrencySetting:
+        """Returns a new currency setting instance"""
+
+    def get_language_setting(self) -> LanguageSetting:
+        """Returns a new language setting instance"""
+
+
+class EuropeSetting(SettingFactory):
+    """Factory aimed at creating settings for Europe region"""
+
+    def get_currency_setting(self) -> CurrencySetting:
+        return EuroCurrencySetting()
+    
+    def get_language_setting(self) -> LanguageSetting:
+        return GermanLanguageSetting()
+    
+
+class UnitedKingdomSetting(SettingFactory):
+    """Factory aimed at creating settings for United Kingdom region"""
+
+    def get_currency_setting(self) -> CurrencySetting:
+        return PoundCurrencySetting()
+    
+    def get_language_setting(self) -> LanguageSetting:
+        return EnglishLanguageSetting()
+
+
+class UnitedStatesSetting(SettingFactory):
+    """Factory aimed at creating settings for United States region"""
+
+    def get_currency_setting(self) -> CurrencySetting:
+        return DollarCurrencySetting()
+    
+    def get_language_setting(self) -> LanguageSetting:
+        return EnglishLanguageSetting()
+
+
+def read_setting() -> SettingFactory:
+    """Constructs an setting factory based on the user's preference."""
+    factories = {
+        "eu": EuropeSetting(),
+        "uk": UnitedKingdomSetting(),
+        "us": UnitedStatesSetting(),
+    }
 
     # read the desired region
-    region: str
     while True:
         region = input("Enter your region (eu, uk, us):")
-        if region in {"eu", "uk", "us"}:
-            break
+        if region in factories:
+            return factories[region]
         print(f"Unknown region option: {region}")
 
+
+def main(fac: SettingFactory) -> None:
+    """
+    Main function
+    Invokes factory methods
+    """
+
     # create the currency and language setting
-    currency_setting: CurrencySetting
-    language_setting: LanguageSetting
-    if region == "eu":
-        currency_setting = EuroCurrencySetting()
-        language_setting = GermanLanguageSetting()
-    elif region == "uk":
-        currency_setting = PoundCurrencySetting()
-        language_setting = EnglishLanguageSetting()     
-    else:
-        # Default: us region
-        currency_setting = DollarCurrencySetting()
-        language_setting = EnglishLanguageSetting()
+    currency_setting = fac.get_currency_setting()
+    language_setting = fac.get_language_setting()
 
     # set a setting
     currency_setting.set_setting()
@@ -115,4 +161,15 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    # fetch factory from user input function
+    setting_factory = read_setting()
+    
+    # provide SettingFactory to the main function
+    main(setting_factory)
+
+    """
+    Factory Pattern should be used when there is a need to
+    create a combination of classes with recurring methods.
+    When objects customization is needed with many
+    combinations one should use composition.
+    """
