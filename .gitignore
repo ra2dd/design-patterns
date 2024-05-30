@@ -5,6 +5,7 @@
 *.ipr
 
 **/out/production
+**/target
 
 
 ### Python ###
